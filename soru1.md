@@ -192,14 +192,42 @@ Ayrıca, K=8.5 senaryosunun neden kırılgan olduğu şu şekilde açıklanabili
 
 ## Kurulum ve Çalıştırma
 
-1.  **Gerekli Kütüphaneler:**
-    ```bash
-    pip install numpy scikit-fuzzy matplotlib
-    ```
+Bu bölüm, projenin nasıl çalıştırılacağını ve farklı fiziksel senaryoların nasıl test edileceğini açıklamaktadır.
 
-2.  **Çalıştırma ve Senaryo Testi:**
-    Script dosyasındaki `K` değişkeninin değeri değiştirilerek farklı senaryolar test edilebilir. Script çalıştırıldığında, konsola analiz ve metrikler basılacak, ardından sonuç grafiği gösterilecektir.
-    ```python
-    # Script içerisindeki K değerini değiştirin:
-    K = 10.0  # Başarılı senaryo
-    ```
+### 1. Gerekli Kütüphaneler
+
+Projenin çalışabilmesi için sisteminizde Python 3 ve aşağıdaki kütüphanelerin kurulu olması gerekmektedir. Eğer kurulu değillerse, terminal veya komut istemi üzerinden tek bir komutla kurabilirsiniz:
+
+```bash
+pip install numpy scikit-fuzzy matplotlib
+```
+
+### 2. Scriptin Çalıştırılması
+
+Proje dosyalarının bulunduğu dizinde bir terminal açarak aşağıdaki komutu çalıştırın:
+
+```bash
+python soru1.py
+```
+
+Script çalıştırıldığında, sırasıyla aşağıdaki adımlar gerçekleşecektir:
+1.  Tanımlanan üyelik fonksiyonlarının grafikleri bir pencerede gösterilecektir. Bu pencereyi kapattığınızda simülasyon devam eder.
+2.  Konsola, simülasyonun ilerleyişini gösteren periyodik durum raporları basılacaktır.
+3.  Simülasyon tamamlandıktan sonra, konsola detaylı bir performans metrikleri analizi ve ham sayısal değerler yazdırılacaktır.
+4.  Son olarak, sıcaklık ve ısıtıcı gücü değişimini gösteren nihai simülasyon grafiği bir pencerede açılacaktır.
+
+### 4.3. Farklı Senaryoların Test Edilmesi
+
+Bu proje, sadece tek bir sonuç üretmek yerine bir analiz aracı olarak tasarlanmıştır. Scriptin içindeki `K` değişkeninin değerini değiştirerek, sistemin farklı fiziksel koşullar altındaki davranışını test edebilirsiniz.
+
+Scriptin "Sistem Parametreleri" bölümünde yer alan `K` değişkenini aşağıdaki gibi düzenleyerek üç ana senaryoyu gözlemleyebilirsiniz:
+
+```python
+# Farklı senaryoları test etmek için bu satırı değiştirin:
+
+# K = 1.0   # 1. Senaryo: Fiziksel olarak imkansız durum.
+# K = 8.5   # 2. Senaryo: Teorik minimum kazanç, bozucu etkiye karşı kırılgan.
+K = 10.0  # 3. Senaryo: Güvenlik payı içeren, başarılı ve sağlam tasarım.
+```
+
+Bu senaryoları test etmek, raporda sunulan karşılaştırma tablosundaki sonuçların nasıl elde edildiğini anlamak ve sistem dinamiğinin kazanç parametresine olan hassasiyetini birinci elden görmek için şiddetle tavsiye edilir.
