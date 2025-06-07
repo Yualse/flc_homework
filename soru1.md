@@ -1,4 +1,4 @@
-# Bulanık Mantık ile Oda Sıcaklığı Denetleyicisi: Bir Tasarım ve Analiz Vaka Çalışması
+# Bulanık Mantık ile Oda Sıcaklığı Denetleyicisi
 
 Bu proje, **Soru 1 - Mamdani Tipi Oda Sıcaklığı Denetleyicisi** ödevi kapsamında geliştirilmiştir. Proje, sadece bir bulanık mantık denetleyicisi implementasyonundan ibaret olmayıp, bir kontrol sisteminin tasarım sürecindeki **analitik modelleme, iteratif iyileştirme, fiziksel sınırlılıkların tespiti ve parametre optimizasyonu** gibi temel mühendislik adımlarını içeren bir vaka çalışması niteliğindedir.
 
@@ -51,15 +51,42 @@ Denetleyici, Mamdani tipi bir bulanık çıkarım sistemi olarak tasarlanmışt�
 - **Terimler:** Tüm değişkenler için `NB, NS, Z, PS, PB` dilsel terimleri ve üçgensel üyelik fonksiyonları kullanılmıştır. Özellikle çıkış değişkeninin `Z` (Orta) üyelik fonksiyonu, en zorlu koşuldaki teorik denge gücü olan **1.7 kW**'ı merkez alacak şekilde tasarlanmıştır. Bu, denetleyicinin kalıcı durum hatasına düşmesini önleyen kritik bir adımdır.
 
 #### 3.2. Kural Tabanı
-5x5'lik kural tabanı, hız ve stabilite arasında optimum bir denge kurmayı hedefler. Bu "Altın Oran" yaklaşımı, hedefe uzaktayken agresif davranırken, hedefe yaklaşırken "öngörülü frenleme" yaparak aşımı minimize eder.
 
-| e \ ė | NB | NS | Z  | PS | PB |
-|:---:|:--:|:--:|:--:|:--:|:--:|
-| **PB** | PB | PB | PB | PS | Z  |
-| **PS** | PB | PS | PS | Z  | NS |
-| **Z** | PS | PS | Z  | Z  | NS |
-| **NS** | NS | NS | NB | NB | NB |
-| **NB** | NS | NB | NB | NB | NB |
+Bu çalışmada kullanılan 5×5 boyutundaki Mamdani tipi bulanık kural tabanı, hata (`e`) ve hata türevi (`ė`) giriş değişkenlerine dayalı olarak ısıtıcı gücünü (`u`) belirlemek üzere tasarlanmıştır. Tablo, beşer adet dilsel terim içeren üç değişkenin (giriş1, giriş2, çıkış) üçgensel üyelik fonksiyonları üzerine inşa edilmiştir. Aşağıda, söz konusu kural yapısı hem kontrol stratejisi hem de sistem dinamiklerine uygunluğu açısından değerlendirilmiştir.
+
+##### 3.2.1. Yapısal ve Kavramsal İnceleme
+
+Kural tabanı, klasik bulanık kontrol ilkeleri çerçevesinde tasarlanmış olup hata (`e`) büyüklüğü ve yönüne göre sistemin ısıtıcı gücünü artırma veya azaltma eğiliminde olacak şekilde modellenmiştir. Hata türevi (`ė`) ise sistemin gelecekteki eğilimini (artan/azalan sıcaklık) dikkate alarak çıkışın proaktif olarak modifiye edilmesini sağlamaktadır.
+
+| `e` \ `ė` |  NB |  NS |  Z  |  PS |  PB |
+| --------: | :-: | :-: | :-: | :-: | :-: |
+|    **PB** |  PB |  PB |  PB |  PS |  Z  |
+|    **PS** |  PB |  PS |  PS |  Z  |  NS |
+|     **Z** |  PS |  PS |  Z  |  Z  |  NS |
+|    **NS** |  NS |  NS |  NB |  NB |  NB |
+|    **NB** |  NS |  NB |  NB |  NB |  NB |
+
+Bu yapı, sistemin soğuk bölgede yüksek güçle ısınmaya çalışmasını, sıcak bölgede ise ısıtmayı kademeli olarak azaltmasını sağlamaktadır.
+
+##### 3.2.2. Kontrol Stratejisi Açısından Değerlendirme
+
+* **Pozitif hata (`e > 0`)**: Oda sıcaklığı hedefin altındadır. `PB` ve `PS` satırlarında yüksek çıkış gücü (`PB`, `PS`) kullanılması, hızlı ısıtma amacıyla uygundur. Ancak `ė > 0` durumunda sistemin zaten ısınmakta olduğu anlaşılır ve bu durumda daha düşük çıkış seviyeleri (`Z`, `NS`) tercih edilerek aşım (overshoot) önlenir.
+
+* **Sıfır hata (`e ≈ 0`)**: Hedef sıcaklık civarında denge korunmaya çalışılır. `ė < 0` durumunda ısı kaybı öngörülerek çıkış (`PS`) arttırılmakta, `ė > 0` için ise çıkış azaltılmaktadır (`NS`).
+
+* **Negatif hata (`e < 0`)**: Oda sıcaklığı hedefin üzerindedir. `NS` ve `NB` satırlarında yer alan çıkışlar (çoğunlukla `NB` veya `NS`) ile ısıtıcı gücü azaltılarak sistemin sıcaklığı düşürülmeye çalışılır.
+
+##### 3.2.3. Simetri ve İstikrar
+
+Kural tabanı dikkatle dengelenmiş simetrik bir yapıya sahiptir. Bu simetri, sistemin pozitif ve negatif hatalara benzer şekilde ancak yönsel olarak zıt tepkiler vermesini sağlar. Böylece hem ısınma hem soğuma süreçlerinde benzer kararlılık ve performans elde edilir.
+
+##### 3.2.4. Tasarım Rasyoneli ve Pratik Uygunluk
+
+Kural tabanı, aşağıdaki tasarım prensiplerini gözeterek oluşturulmuştur:
+
+* **Güvenli frenleme:** Hedefe yaklaşırken çıkış değeri azaltılarak aşım riski düşürülmüştür.
+* **Proaktif tepki:** `ė` girişinin kullanılması, sistemin eğilimini öngörerek çıkışın zamanında ayarlanmasını sağlar.
+* **Fiziksel sınırlara uygunluk:** Maksimum ısıtıcı gücünün 2.0 kW ile sınırlı olduğu göz önünde bulundurulmuştur. `PB` çıkışı yalnızca yüksek pozitif hatalarda kullanılmıştır.
 
 ### 4. Simülasyon ve Analiz
 Denetleyici, 60 dakikalık bir simülasyon ile test edilmiştir. Simülasyonun 30. dakikasında dış sıcaklık 10°C'den 5°C'ye düşürülerek sisteme bir bozucu etki uygulanmıştır.
@@ -122,9 +149,7 @@ RMSE (Root Mean Square Error): 1.77 °C
 **Tartışma:**
 Tablo, sistem kazancı `K`'nın performans üzerindeki kritik etkisini göstermektedir. `K=1` ve `K=8.5` senaryoları, teorik limitlerin ve güvenlik payının önemini kanıtlarken, **`K=10` senaryosu** hedeflenen tüm performans kriterlerini başarıyla karşılamıştır.
 
-`%1.01` gibi olağanüstü düşük bir aşım değeri ve 4.47 dakikalık hızlı yerleşme süresi, denetleyicinin hız ve stabilite arasında mükemmel bir denge kurduğunu kanıtlamaktadır. Denetleyicinin 30. dakikadaki bozucu etkiye rağmen hedefe tam olarak kilitlenmesi, tasarımın sağlamlığının (robustness) en net göstergesidir. En düşük IAE ve RMSE değerleri, genel hata performansının diğer senaryolara göre üstün olduğunu sayısal olarak teyit etmektedir.
-
-**Nihai Sonuç:** Bu proje, bir bulanık mantık denetleyicisi tasarlamanın, sistemin fiziğini anlamayı, bu anlayışı üyelik fonksiyonlarına yansıtmayı ve kuralları iteratif olarak iyileştirmeyi içeren derin bir mühendislik süreci olduğunu başarıyla ortaya koymuştur.
+`%1.01` gibi düşük bir aşım değeri ve 4.47 dakikalık hızlı yerleşme süresi, denetleyicinin hız ve stabilite arasında optimal bir denge kurduğunu kanıtlamaktadır. Denetleyicinin 30. dakikadaki bozucu etkiye rağmen hedefe tam olarak kilitlenmesi, tasarımın sağlamlığının (robustness) en net göstergesidir. En düşük IAE ve RMSE değerleri, genel hata performansının diğer senaryolara göre üstün olduğunu sayısal olarak teyit etmektedir.
 
 ## Kurulum ve Çalıştırma
 
