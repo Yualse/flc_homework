@@ -1,4 +1,4 @@
-# Bulanık Mantık ile Oda Sıcaklığı Denetleyicisi
+# Bulanık Mantık ile Oda Sıcaklığı Denetleyici Tasarımı
 
 Bu proje, **Soru 1 - Mamdani Tipi Oda Sıcaklığı Denetleyicisi** ödevi kapsamında geliştirilmiştir. Proje, sadece bir bulanık mantık denetleyicisi implementasyonundan ibaret olmayıp, bir kontrol sisteminin tasarım sürecindeki **analitik modelleme, iteratif iyileştirme, fiziksel sınırlılıkların tespiti ve parametre optimizasyonu** gibi temel mühendislik adımlarını içeren bir vaka çalışması niteliğindedir.
 
@@ -12,7 +12,7 @@ Proje, aşağıda detaylandırılan adımları izleyerek geliştirilmiştir.
 
 ### 1. Sistem Modelleme ve Analizi
 
-Odanın termal davranışı, Newton'un Soğuma Yasası'nı temel alan aşağıdaki birinci dereceden diferansiyel denklem ile modellenmiştir:
+Odanın basitleştirilmiş termal davranışı, Newton'un Soğuma Yasası'nı temel alan aşağıdaki birinci dereceden diferansiyel denklem ile modellenmiştir:
 
 $$
 \frac{dT_{oda}}{dt} = -\frac{1}{\tau} \cdot [T_{oda}(t) - T_{dış}(t)] + \frac{K}{\tau} \cdot u(t)
@@ -59,12 +59,12 @@ Bu çalışmada kullanılan 5×5 boyutundaki Mamdani tipi bulanık kural tabanı
 Kural tabanı, klasik bulanık kontrol ilkeleri çerçevesinde tasarlanmış olup hata (`e`) büyüklüğü ve yönüne göre sistemin ısıtıcı gücünü artırma veya azaltma eğiliminde olacak şekilde modellenmiştir. Hata türevi (`ė`) ise sistemin gelecekteki eğilimini (artan/azalan sıcaklık) dikkate alarak çıkışın proaktif olarak modifiye edilmesini sağlamaktadır.
 
 | `e` \ `ė` |  NB |  NS |  Z  |  PS |  PB |
-| --------: | :-: | :-: | :-: | :-: | :-: |
-|    **PB** |  PB |  PB |  PB |  PS |  Z  |
-|    **PS** |  PB |  PS |  PS |  Z  |  NS |
-|     **Z** |  PS |  PS |  Z  |  Z  |  NS |
-|    **NS** |  NS |  NS |  NB |  NB |  NB |
-|    **NB** |  NS |  NB |  NB |  NB |  NB |
+|:--------: | :-: | :-: | :-: | :-: | :-: |
+|**PB**     |  PB |  PB |  PB |  PS |  Z  |
+|**PS**     |  PB |  PS |  PS |  Z  |  NS |
+|**Z**      |  PS |  PS |  Z  |  Z  |  NS |
+|**NS**     |  NS |  NS |  NB |  NB |  NB |
+|**NB**     |  NS |  NB |  NB |  NB |  NB |
 
 Bu yapı, sistemin soğuk bölgede yüksek güçle ısınmaya çalışmasını, sıcak bölgede ise ısıtmayı kademeli olarak azaltmasını sağlamaktadır.
 
@@ -92,16 +92,63 @@ Kural tabanı, aşağıdaki tasarım prensiplerini gözeterek oluşturulmuştur:
 Denetleyici, 60 dakikalık bir simülasyon ile test edilmiştir. Simülasyonun 30. dakikasında dış sıcaklık 10°C'den 5°C'ye düşürülerek sisteme bir bozucu etki uygulanmıştır.
 
 ## Sonuçlar ve Tartışma
-
-### Başarılı Senaryo (`K=10`) Sonuç Grafiği
-
-![Simülasyon Sonuç Grafiği](images/simulasyon_grafigi.png)
-
-## K = 10.0 İçin Çıktılar
+### Tasarlanan Üyelik Fonksiyonları
 ```python output
 --- Tasarlanan Üyelik Fonksiyonları Gösteriliyor ---
 ```
-![Simülasyon Sonuç Grafiği](images/simulasyon_grafigi.png)
+![Üyelik Fonksiyonları Grafiği](images/uyelik_fonksiyonlari_1.png)
+
+### K = 1.0 İçin Çıktılar
+```python output
+--- Simülasyon Başlatılıyor (K=1.0) ---
+Zaman:  0 dk | T_oda: 10.00°C | Hata: 12.00 | Güç: 1.96 kW
+Zaman:  5 dk | T_oda: 11.24°C | Hata: 10.76 | Güç: 1.96 kW
+Zaman: 10 dk | T_oda: 11.70°C | Hata: 10.30 | Güç: 1.96 kW
+Zaman: 15 dk | T_oda: 11.86°C | Hata: 10.14 | Güç: 1.96 kW
+Zaman: 20 dk | T_oda: 11.92°C | Hata: 10.08 | Güç: 1.96 kW
+Zaman: 25 dk | T_oda: 11.94°C | Hata: 10.06 | Güç: 1.96 kW
+Zaman: 30 dk | T_oda: 11.95°C | Hata: 10.05 | Güç: 1.96 kW
+Zaman: 35 dk | T_oda:  8.78°C | Hata: 13.22 | Güç: 1.95 kW
+Zaman: 40 dk | T_oda:  7.63°C | Hata: 14.37 | Güç: 1.96 kW
+Zaman: 45 dk | T_oda:  7.21°C | Hata: 14.79 | Güç: 1.96 kW
+Zaman: 50 dk | T_oda:  7.05°C | Hata: 14.95 | Güç: 1.97 kW
+Zaman: 55 dk | T_oda:  7.00°C | Hata: 15.00 | Güç: 1.97 kW
+Zaman: 60 dk | T_oda:  6.98°C | Hata: 15.02 | Güç: 1.97 kW
+--- Simülasyon Tamamlandı ---
+
+--- Performans Metrikleri Analizi ---
+Sistemde aşım gözlemlenmedi.
+Sistem simülasyon süresi boyunca hedefe yerleşemedi.
+IAE (Integral of Absolute Error): 44257.41 °C·s
+RMSE (Root Mean Square Error): 12.47 °C
+```
+![K = 1 Grafiği](images/k_1.png)
+### K = 8.5 İçin Çıktılar
+```python output
+--- Simülasyon Başlatılıyor (K=8.5) ---
+Zaman:  0 dk | T_oda: 10.00°C | Hata: 12.00 | Güç: 1.96 kW
+Zaman:  5 dk | T_oda: 19.99°C | Hata:  2.01 | Güç: 1.81 kW
+Zaman: 10 dk | T_oda: 22.10°C | Hata: -0.10 | Güç: 1.42 kW
+Zaman: 15 dk | T_oda: 22.10°C | Hata: -0.10 | Güç: 1.42 kW
+Zaman: 20 dk | T_oda: 22.10°C | Hata: -0.10 | Güç: 1.42 kW
+Zaman: 25 dk | T_oda: 22.10°C | Hata: -0.10 | Güç: 1.42 kW
+Zaman: 30 dk | T_oda: 22.10°C | Hata: -0.10 | Güç: 1.42 kW
+Zaman: 35 dk | T_oda: 20.70°C | Hata:  1.30 | Güç: 1.78 kW
+Zaman: 40 dk | T_oda: 20.38°C | Hata:  1.62 | Güç: 1.79 kW
+Zaman: 45 dk | T_oda: 20.31°C | Hata:  1.69 | Güç: 1.80 kW
+Zaman: 50 dk | T_oda: 20.29°C | Hata:  1.71 | Güç: 1.80 kW
+Zaman: 55 dk | T_oda: 20.29°C | Hata:  1.71 | Güç: 1.80 kW
+Zaman: 60 dk | T_oda: 20.29°C | Hata:  1.71 | Güç: 1.80 kW
+--- Simülasyon Tamamlandı ---
+
+--- Performans Metrikleri Analizi ---
+Aşım Yüzdesi (Overshoot): %0.45
+Sistem simülasyon süresi boyunca hedefe yerleşemedi.
+IAE (Integral of Absolute Error): 4834.57 °C·s
+RMSE (Root Mean Square Error): 2.25 °C
+```
+![K = 8.5 Grafiği](images/k_8_5.png)
+### K = 10.0 İçin Çıktılar
 ```python output
 --- Simülasyon Başlatılıyor (K=10.0) ---
 Zaman:  0 dk | T_oda: 10.00°C | Hata: 12.00 | Güç: 1.96 kW
@@ -109,25 +156,14 @@ Zaman:  5 dk | T_oda: 21.58°C | Hata:  0.42 | Güç: 1.73 kW
 Zaman: 10 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
 Zaman: 15 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
 Zaman: 20 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
-Zaman: 10 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
-Zaman: 15 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
-Zaman: 20 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
-Zaman: 15 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
-Zaman: 20 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
-Zaman: 20 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
 Zaman: 25 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
 Zaman: 30 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
-Zaman: 25 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
-Zaman: 30 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
-Zaman: 30 dk | T_oda: 22.22°C | Hata: -0.22 | Güç: 1.22 kW
 Zaman: 35 dk | T_oda: 22.00°C | Hata: -0.00 | Güç: 1.70 kW
-Zaman: 35 dk | T_oda: 22.00°C | Hata: -0.00 | Güç: 1.70 kW
-Zaman: 40 dk | T_oda: 22.00°C | Hata: -0.00 | Güç: 1.70 kW
 Zaman: 40 dk | T_oda: 22.00°C | Hata: -0.00 | Güç: 1.70 kW
 Zaman: 45 dk | T_oda: 22.00°C | Hata: -0.00 | Güç: 1.70 kW
 Zaman: 50 dk | T_oda: 22.00°C | Hata: -0.00 | Güç: 1.70 kW
-Zaman: 50 dk | T_oda: 22.00°C | Hata: -0.00 | Güç: 1.70 kW
 Zaman: 55 dk | T_oda: 22.00°C | Hata: -0.00 | Güç: 1.70 kW
+Zaman: 60 dk | T_oda: 22.00°C | Hata: -0.00 | Güç: 1.70 kW
 --- Simülasyon Tamamlandı ---
 
 --- Performans Metrikleri Analizi ---
@@ -136,20 +172,23 @@ Yerleşme Süresi (±%5): 4.47 dakika
 IAE (Integral of Absolute Error): 1873.42 °C·s
 RMSE (Root Mean Square Error): 1.77 °C
 ```
+![K = 10 Grafiği](images/k_10.png)
 
 ### Performans Metrikleri ve Karşılaştırma
 
 | Metrik                      | K = 1.0 (İmkansız) | K = 8.5 (Kırılgan) | K = 10.0 (Başarılı) |
 | --------------------------- | ------------------ | ------------------ | ------------------- |
-| **Aşım Yüzdesi (%)**        | 0.00               | 0.28               | **1.01**            |
+| **Aşım Yüzdesi (%)**        | 0.00               | 0.45               | **1.01**            |
 | **Yerleşme Süresi (dk)**    | Yerleşemedi        | Yerleşemedi        | **4.47**            |
-| **IAE (∫\|e\|dt)**          | 37456.88           | 4555.84            | **1873.42**         |
-| **RMSE (√Σe²/N)**           | 10.74              | 2.20               | **1.77**            |
+| **IAE (∫\|e\|dt)**          | 44257.41           | 4834.57            | **1873.42**         |
+| **RMSE (√Σe²/N)**           | 12.47              | 2.25               | **1.77**            |
 
 **Tartışma:**
-Tablo, sistem kazancı `K`'nın performans üzerindeki kritik etkisini göstermektedir. `K=1` ve `K=8.5` senaryoları, teorik limitlerin ve güvenlik payının önemini kanıtlarken, **`K=10` senaryosu** hedeflenen tüm performans kriterlerini başarıyla karşılamıştır.
+Tablo, sistem kazancı K'nın performans üzerindeki kritik etkisini göstermektedir. K=1 ve K=8.5 senaryoları, teorik limitlerin ve güvenlik payının önemini kanıtlarken, K=10 senaryosu hedeflenen tüm performans kriterlerini başarıyla karşılamıştır.
 
-`%1.01` gibi düşük bir aşım değeri ve 4.47 dakikalık hızlı yerleşme süresi, denetleyicinin hız ve stabilite arasında optimal bir denge kurduğunu kanıtlamaktadır. Denetleyicinin 30. dakikadaki bozucu etkiye rağmen hedefe tam olarak kilitlenmesi, tasarımın sağlamlığının (robustness) en net göstergesidir. En düşük IAE ve RMSE değerleri, genel hata performansının diğer senaryolara göre üstün olduğunu sayısal olarak teyit etmektedir.
+%1.01 gibi düşük bir aşım değeri ve 4.47 dakikalık hızlı yerleşme süresi, denetleyicinin hız ve stabilite arasında optimal bir denge kurduğunu kanıtlamaktadır. Denetleyicinin 30. dakikadaki bozucu etkiye rağmen hedefe tam olarak kilitlenmesi, tasarımın sağlamlığının (robustness) en net göstergesidir. En düşük IAE ve RMSE değerleri, genel hata performansının diğer senaryolara göre üstün olduğunu sayısal olarak teyit etmektedir.
+
+Ayrıca, K=8.5 senaryosunun neden kırılgan olduğu şu şekilde açıklanabilir: Bu değer teorik olarak yeterli görünse de, dış sıcaklıktaki anlık değişimlere karşı sistemin yanıtı yetersiz kalmakta ve bu da geçici kararsızlıklara yol açmaktadır. Dolayısıyla, K=10 değerine geçilmesi yalnızca performansı değil, sistemin bozucu etkilere karşı dayanıklılığını da önemli ölçüde artırmıştır. Güvenlik payı bırakılarak yapılan bu optimizasyon, pratik mühendislik uygulamalarında sıklıkla tercih edilen sağlam tasarım ilkesiyle de örtüşmektedir.
 
 ## Kurulum ve Çalıştırma
 
